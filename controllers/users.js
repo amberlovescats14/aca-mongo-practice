@@ -1,31 +1,33 @@
 const users = require('../data')
-
-const listUsers = (req, res) => res.json(users)
+const UsersModel = require('../mongo/model')
+const listUsers = (req, res) => {
+    UsersModel.find()
+        .then(result =>  res.json(result))
+        .catch(err=> console.error(err.message))
+}
 
 const showUser = (req, res) => {
-    const user = users.find(u => u.id == req.params.id)
-    res.json(user)
+    UsersModel.findById({_id: req.params.id})
+        .then(result=> res.json(result))
+        .catch(err=> console.error(err.message))
 }
 
 const createUser = (req, res) => {
-    const nextId = users.length + 1
-    req.body.id = nextId
-    users.push(req.body)
-    res.json(users[nextId - 1])
+    UsersModel.create(req.body)
+        .then(result => res.json(result))
+        .catch(err => console.error(err.message))
 }
 
 const updateUser = (req, res) => {
-    const user = users.find(u => u.id == req.params.id)
-    Object.assign(user, req.body, { id: user.id })
-    res.json(user)
+    UsersModel.updateOne({_id: req.params.id}, req.body)
+        .then(result=> res.json(result))
+        .catch(err=> console.error(err.message))
 }
 
 const deleteUser = (req, res) => {
-    const userIdx = users.findIndex(u => u.id == req.params.id)
-    users.splice(userIdx, 1)
-    res.json({
-        deletedId: userIdx + 1
-    })
+    UsersModel.deleteOne({_id: req.params.id})
+        .then(result => res.json({msg: `Deleted`}))
+        .catch(err=> console.error(err.message))
 }
 
 module.exports = {
